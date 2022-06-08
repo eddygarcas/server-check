@@ -1,0 +1,61 @@
+version: '3.4'
+# docker-compose.yml relates to those several files:
+# ./entrypoints/sidekiq-entrypoint.sh
+# ./entrypoints/docker-entrypoint.sh
+# ./init.sql
+# .env
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    #      - redis
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - gem_cache:/usr/local/bundle/gems
+      - node_modules:/app/node_modules
+    env_file: .env
+    environment:
+      - RAILS_ENV=development
+
+  database:
+    image: nouchka/sqlite3:latest
+    volumes:
+      - db:/root/db
+    stdin_open: true
+    tty: true
+#    image: postgres:latest
+#    env_file: .env
+#    volumes:
+#      - db_data:/var/lib/postgresql/data
+#      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+#
+#  redis:
+#    image: redis:5.0.7
+#
+#  sidekiq:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    depends_on:
+#      - app
+#      - database
+#      - redis
+#    volumes:
+#      - .:/app
+#      - gem_cache:/usr/local/bundle/gems
+#      - node_modules:/app/node_modules
+#    env_file: .env
+#    environment:
+#      - RAILS_ENV=development
+#    entrypoint: ./entrypoints/sidekiq-entrypoint.sh
+
+volumes:
+  gem_cache:
+  db:
+  #  db_data:
+  node_modules:
